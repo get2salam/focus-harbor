@@ -4,45 +4,37 @@ Guide deep work sessions into a calmer harbor with goals, blocks, and notes.
 
 ![Focus Harbor preview](docs/preview.svg)
 
-Focus Harbor is a small local-first planning tool for solo builders, operators, and creative teams who want a cleaner way to manage sessions. Add items, score the signal, track the friction, and keep the strongest opportunities visible without needing a backend or build step.
+Focus Harbor is a local-first workspace for founders, operators, and solo builders who want a cleaner way to manage focus sessions. It keeps focus quality, goal, distraction, and review timing visible so the right things move forward with less drift.
 
-## Features
+## What it does
 
-- Local-first persistence with `localStorage`
-- Search and filter controls
-- Ranked list sorted by signal minus friction
-- Inline editor for title, notes, type, status, score, and effort
-- Import/export JSON backups
-- Re-seed action for resetting the sample board
-- Keyboard shortcuts: `N` for new, `/` for search
-- No build tooling, just open in a browser
+- ranks focus sessions by leverage, focus quality, timing, and friction
+- tracks **goal**, **distraction**, **session date**, and **focus quality** for each focus session
+- highlights the best current bet, the next review slot, and the strongest signal on the board
+- renders a dedicated queue plus a category mix snapshot beneath the main board
+- saves locally in the browser with JSON import/export backups
+- quick action: **Anchor session**
+- quick action: **Improve focus**
+- quick action: **Log session**
+
+## Why it feels different
+
+Focus Harbor is not just a generic list. It is shaped around the real workflow behind focus sessions, so the board helps you decide what matters next instead of simply storing records.
 
 ## Quick start
 
 ```bash
-git clone https://github.com/<you>/focus-harbor.git
+git clone https://github.com/get2salam/focus-harbor.git
 cd focus-harbor
 python -m http.server 8000
 ```
 
 Then open <http://localhost:8000>.
 
-## Data shape
+## Keyboard shortcuts
 
-```json
-{
-  "boardTitle": "Deep work harbor",
-  "items": [
-    {
-      "title": "Refine the homepage promise",
-      "category": "Ship",
-      "state": "Queued",
-      "score": 9,
-      "effort": 2
-    }
-  ]
-}
-```
+- `N` creates a new focus session
+- `/` focuses the search box
 
 ## Privacy
 

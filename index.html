@@ -7,37 +7,38 @@
     <meta name="description" content="Guide deep work sessions into a calmer harbor with goals, blocks, and notes." />
     <link rel="stylesheet" href="./styles/app.css" />
   </head>
-  <body style="--primary:#60a5fa;--secondary:#38bdf8;--panel:#0d1424;--edge:#223a62;--glow:rgba(96, 165, 250, 0.22)">
+  <body style="--primary:#60a5fa;--secondary:#22d3ee;--panel:#0b1422;--edge:#2f5376;--glow:rgba(96, 165, 250, 0.22)">
     <div class="shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Local-first micro app</p>
+          <p class="eyebrow">Deep work workspace</p>
           <h1>Focus Harbor</h1>
-          <p class="lede">Guide deep work sessions into a calmer harbor with goals, blocks, and notes.</p>
+          <p class="lede">Turn deep work into visible sessions with goals, distractions, focus quality, and cleaner session dates.</p>
         </div>
         <div class="actions">
           <button class="btn" data-action="import">Import</button>
           <button class="btn" data-action="export">Export</button>
-          <button class="btn btn-primary" data-action="new">New session</button>
+          <button class="btn btn-primary" data-action="new">New focus session</button>
           <input id="import-file" type="file" accept=".json,application/json" hidden />
         </div>
       </header>
 
       <section class="hero card">
         <div>
-          <p class="eyebrow">Sessions board</p>
+          <p class="eyebrow">Focus harbor board</p>
           <h2 data-role="board-title"></h2>
           <p data-role="board-subtitle"></p>
         </div>
-        <p class="accent">A focused session lands better when you know why it matters before it starts.</p>
+        <p class="accent">Focus improves when the goal, likely distraction, and next session are all visible before the block begins.</p>
       </section>
 
       <section class="stats" data-role="stats"></section>
+      <section class="insights" data-role="insights"></section>
 
       <section class="controls card">
         <label>
           <span>Search</span>
-          <input type="search" data-field="search" placeholder="Search sessions..." />
+          <input type="search" data-field="search" placeholder="Search focus sessions, notes, and next steps..." />
         </label>
         <label>
           <span>Session type</span>
@@ -54,14 +55,19 @@
         <article class="card list-panel">
           <div class="panel-head">
             <div>
-              <strong>Sessions</strong>
-              <p>Sorted by signal minus friction.</p>
+              <strong>Focus sessions</strong>
+              <p>Guide deep work sessions into a calmer harbor with goals, blocks, and notes.</p>
             </div>
             <span class="chip" data-role="count"></span>
           </div>
           <div class="list" data-role="list"></div>
         </article>
         <article class="card editor-panel" data-role="editor"></article>
+      </section>
+
+      <section class="secondary">
+        <article class="card secondary-panel" data-role="secondary-primary"></article>
+        <article class="card secondary-panel" data-role="secondary-secondary"></article>
       </section>
     </div>
     <script type="module" src="./js/main.js"></script>
