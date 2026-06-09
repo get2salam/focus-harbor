@@ -1,3 +1,13 @@
+import {
+  clamp,
+  todayISO,
+  daysFromToday,
+  bumpDate,
+  priority as priorityOf,
+  normalize as normalizeItem,
+  isCompleted,
+} from './scoring.js';
+
 const SPEC = {
   "slug": "focus-harbor",
   "title": "Focus Harbor",
@@ -189,33 +199,11 @@ function showToast(message) {
   }, 2200);
 }
 
-function uid() {
-  return `${SPEC.slug}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function todayISO(offset = 0) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
-
-function daysFromToday(value) {
-  if (!value) return 999;
-  const today = new Date(`${todayISO()}T00:00:00`);
-  const target = new Date(`${value}T00:00:00`);
-  return Math.round((target - today) / 86400000);
-}
-
-function bumpDate(value, days) {
-  const date = new Date(`${value || todayISO()}T00:00:00`);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
 function formatDate(value) {
   if (!value) return 'No date';
-  return new Date(`${value}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  const target = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(target.getTime())) return 'No date';
+  return target.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
 }
 
 function escapeHtml(value) {
@@ -226,46 +214,25 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;');
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, Number(value)));
-}
-
-function completedStates() {
-  return new Set(SPEC.completedStates || []);
-}
-
-function stateWeight(state) {
-  return (SPEC.stateWeights || {})[state] ?? 0;
+function isItemCompleted(item) {
+  return isCompleted(item.state, SPEC);
 }
 
 function toneForDate(item) {
-  if (completedStates().has(item.state)) return 'success';
+  if (isItemCompleted(item)) return 'success';
   const days = daysFromToday(item.date);
+  if (!Number.isFinite(days)) return 'success';
   if (days <= 0) return 'danger';
   if (days <= 2) return 'warn';
   return 'success';
 }
 
 function normalize(item = {}) {
-  return {
-    id: item.id || uid(),
-    title: item.title || `New ${SPEC.itemLabel}`,
-    note: item.note || SPEC.defaults.note,
-    category: SPEC.categories.includes(item.category) ? item.category : SPEC.categories[0],
-    state: SPEC.states.includes(item.state) ? item.state : SPEC.states[0],
-    score: clamp(item.score ?? 7, 1, 10),
-    effort: clamp(item.effort ?? 3, 1, 10),
-    metric: clamp(item.metric ?? SPEC.metric.default ?? 6, SPEC.metric.min, SPEC.metric.max),
-    textOne: item.textOne || SPEC.textOne.default,
-    textTwo: item.textTwo || SPEC.textTwo.default,
-    date: item.date || todayISO(3),
-  };
+  return normalizeItem(item, SPEC);
 }
 
 function priority(item) {
-  const completed = completedStates().has(item.state);
-  const dueBoost = completed ? 0 : Math.max(0, 4 - Math.max(daysFromToday(item.date), 0)) * 4;
-  return item.score * 6 + item.metric * 5 + dueBoost + stateWeight(item.state) - item.effort * 4;
+  return priorityOf(item, SPEC);
 }
 
 function seedState() {
@@ -420,9 +387,9 @@ function runAction(action) {
 }
 
 function renderStats(items) {
-  const completed = state.items.filter((item) => completedStates().has(item.state)).length;
-  const inMotion = state.items.filter((item) => !completedStates().has(item.state) && item.state !== SPEC.states[0]).length;
-  const dueSoon = state.items.filter((item) => !completedStates().has(item.state) && daysFromToday(item.date) <= 3).length;
+  const completed = state.items.filter((item) => isItemCompleted(item)).length;
+  const inMotion = state.items.filter((item) => !isItemCompleted(item) && item.state !== SPEC.states[0]).length;
+  const dueSoon = state.items.filter((item) => !isItemCompleted(item) && daysFromToday(item.date) <= 3).length;
   const avgMetric = state.items.length ? (state.items.reduce((sum, item) => sum + item.metric, 0) / state.items.length).toFixed(1) : '0.0';
   const cards = [
     [SPEC.stats.totalLabel || SPEC.itemPluralLabel, String(state.items.length), `tracked ${SPEC.itemPluralLabel.toLowerCase()} on the board`],
@@ -441,7 +408,7 @@ function renderStats(items) {
 }
 
 function renderInsights(items) {
-  const nextSlot = [...state.items].filter((item) => !completedStates().has(item.state)).sort((a, b) => daysFromToday(a.date) - daysFromToday(b.date))[0];
+  const nextSlot = [...state.items].filter((item) => !isItemCompleted(item)).sort((a, b) => daysFromToday(a.date) - daysFromToday(b.date))[0];
   const strongestMetric = [...state.items].sort((a, b) => b.metric - a.metric)[0];
   const bestBet = items[0];
   const cards = [
@@ -589,7 +556,7 @@ function renderEditor(item) {
 }
 
 function renderPanels() {
-  const queue = [...state.items].filter((item) => !completedStates().has(item.state)).sort((a, b) => daysFromToday(a.date) - daysFromToday(b.date));
+  const queue = [...state.items].filter((item) => !isItemCompleted(item)).sort((a, b) => daysFromToday(a.date) - daysFromToday(b.date));
   refs.secondaryPrimary.innerHTML = `
     <div class="secondary-head">
       <div>
