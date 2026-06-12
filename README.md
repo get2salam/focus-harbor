@@ -31,6 +31,16 @@ python -m http.server 8000
 
 Then open <http://localhost:8000>.
 
+## Local verification
+
+Run the same focused checks used by CI before opening a PR:
+
+```bash
+npm run verify
+```
+
+This executes the scoring regression tests, syntax-checks the browser entry point, and confirms the HTML still exposes the data hooks that `js/main.js` needs to boot the app.
+
 ## Keyboard shortcuts
 
 - `N` creates a new focus session
