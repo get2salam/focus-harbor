@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Local-first deep work session workspace.",
   "scripts": {
-    "test": "node --test \"tests/**/*.test.mjs\"",
-    "verify": "npm test && node --check js/main.js && node scripts/verify-static.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "example:score": "node scripts/preview-score.mjs",
+    "verify": "npm test && node --check js/main.js && node scripts/verify-static.mjs && npm run example:score"
   }
 }

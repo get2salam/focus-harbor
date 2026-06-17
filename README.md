@@ -41,6 +41,16 @@ npm run verify
 
 This executes the scoring regression tests, syntax-checks the browser entry point, and confirms the HTML still exposes the data hooks that `js/main.js` needs to boot the app.
 
+## Runnable scoring example
+
+Preview how Focus Harbor turns a few sessions into a ranked queue without opening the browser:
+
+```bash
+npm run example:score
+```
+
+The example uses the same shared scoring helpers as the app, normalizes three sample focus sessions, then prints their priority order. It is useful when tuning focus quality, drag, and due-date behavior because the command is also covered by `npm run verify`.
+
 ## Keyboard shortcuts
 
 - `N` creates a new focus session
