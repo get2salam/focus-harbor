@@ -8,6 +8,15 @@ export function clamp(value, min, max, fallback = min) {
   return Math.max(min, Math.min(max, n));
 }
 
+export function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 export function todayISO(offset = 0) {
   const date = new Date();
   date.setHours(0, 0, 0, 0);
@@ -57,8 +66,9 @@ function safeDate(value, fallback) {
 
 export function normalize(item = {}, spec, { idFor = randomId } = {}) {
   const metricDefault = spec.metric.default ?? spec.metric.min;
+  const id = typeof item.id === 'string' && /^[a-z0-9_-]{1,64}$/i.test(item.id) ? item.id : idFor(spec);
   return {
-    id: item.id || idFor(spec),
+    id,
     title: item.title || `New ${spec.itemLabel}`,
     note: item.note || spec.defaults.note,
     category: spec.categories.includes(item.category) ? item.category : spec.categories[0],

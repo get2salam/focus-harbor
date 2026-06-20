@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   clamp,
   daysFromToday,
+  escapeHtml,
   normalize,
   priority,
   todayISO,
@@ -65,6 +66,16 @@ describe('clamp', () => {
 
   it('still coerces numeric strings the way callers expect', () => {
     assert.equal(clamp('4', 1, 10, 7), 4);
+  });
+});
+
+describe('escapeHtml', () => {
+  it('escapes imported session text before it is rendered into app markup', () => {
+    const unsafe = `<img src=x onerror="alert('focus')">`;
+    assert.equal(
+      escapeHtml(unsafe),
+      '&lt;img src=x onerror=&quot;alert(&#39;focus&#39;)&quot;&gt;',
+    );
   });
 });
 
@@ -145,5 +156,10 @@ describe('normalize', () => {
   it('uses a deterministic id factory when one is supplied', () => {
     const normalized = normalize({}, SPEC, { idFor: () => 'fixed-id' });
     assert.equal(normalized.id, 'fixed-id');
+  });
+
+  it('replaces imported ids that could break out of data attributes', () => {
+    const normalized = normalize({ id: 'bad" onmouseover="alert(1)' }, SPEC, { idFor: () => 'safe-id' });
+    assert.equal(normalized.id, 'safe-id');
   });
 });

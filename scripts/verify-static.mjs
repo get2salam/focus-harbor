@@ -51,6 +51,7 @@ const requiredImports = [
   'todayISO',
   'daysFromToday',
   'bumpDate',
+  'escapeHtml',
   'priority as priorityOf',
   'normalize as normalizeItem',
   'isCompleted',

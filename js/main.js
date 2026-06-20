@@ -3,6 +3,7 @@ import {
   todayISO,
   daysFromToday,
   bumpDate,
+  escapeHtml,
   priority as priorityOf,
   normalize as normalizeItem,
   isCompleted,
@@ -204,14 +205,6 @@ function formatDate(value) {
   const target = new Date(`${value}T00:00:00`);
   if (Number.isNaN(target.getTime())) return 'No date';
   return target.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-}
-
-function escapeHtml(value) {
-  return String(value || '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
 }
 
 function isItemCompleted(item) {
@@ -430,9 +423,9 @@ function renderInsights(items) {
   ];
   refs.insights.innerHTML = cards.map((card) => `
     <article class="card insight-card">
-      <p class="eyebrow">${card.label}</p>
-      <h3>${card.title}</h3>
-      <p>${card.body}</p>
+      <p class="eyebrow">${escapeHtml(card.label)}</p>
+      <h3>${escapeHtml(card.title)}</h3>
+      <p>${escapeHtml(card.body)}</p>
     </article>
   `).join('');
 }
@@ -449,21 +442,21 @@ function renderList(items) {
   }
 
   refs.list.innerHTML = items.map((item) => `
-    <button class="item ${item.id === state.ui.selectedId ? 'is-selected' : ''}" type="button" data-id="${item.id}">
+    <button class="item ${item.id === state.ui.selectedId ? 'is-selected' : ''}" type="button" data-id="${escapeHtml(item.id)}">
       <div class="item-top">
-        <strong>${item.title}</strong>
+        <strong>${escapeHtml(item.title)}</strong>
         <span class="score">${priority(item)}</span>
       </div>
-      <p>${item.note}</p>
+      <p>${escapeHtml(item.note)}</p>
       <div class="badge-row">
         <span class="pill ${toneForDate(item)}">${formatDate(item.date)}</span>
-        <span class="pill">${item.textOne}</span>
+        <span class="pill">${escapeHtml(item.textOne)}</span>
         <span class="pill">${SPEC.metric.label} ${item.metric}/${SPEC.metric.max}</span>
       </div>
       <div class="meta">
         <span>${item.category}</span>
         <span>${item.state}</span>
-        <span>${SPEC.textTwo.label}: ${item.textTwo}</span>
+        <span>${SPEC.textTwo.label}: ${escapeHtml(item.textTwo)}</span>
         <span>Friction ${item.effort}/10</span>
       </div>
     </button>
@@ -485,7 +478,7 @@ function renderEditor(item) {
     <div class="editor-head">
       <div>
         <p class="eyebrow">${SPEC.editorEyebrow || `${SPEC.itemLabel} editor`}</p>
-        <h3>${item.title}</h3>
+        <h3>${escapeHtml(item.title)}</h3>
       </div>
       <span class="score">Priority ${priority(item)}</span>
     </div>
@@ -569,10 +562,10 @@ function renderPanels() {
       ${queue.slice(0, 4).map((item) => `
         <div class="mini-card">
           <div class="inline-split">
-            <strong>${item.title}</strong>
+            <strong>${escapeHtml(item.title)}</strong>
             <span class="pill ${toneForDate(item)}">${formatDate(item.date)}</span>
           </div>
-          <p>${item.textOne} · ${item.textTwo} · ${SPEC.metric.label.toLowerCase()} ${item.metric}/${SPEC.metric.max}.</p>
+          <p>${escapeHtml(item.textOne)} · ${escapeHtml(item.textTwo)} · ${SPEC.metric.label.toLowerCase()} ${item.metric}/${SPEC.metric.max}.</p>
         </div>
       `).join('') || `<div class="empty"><strong>No pending ${SPEC.itemPluralLabel.toLowerCase()}</strong><p>${SPEC.queue.empty}</p></div>`}
     </div>
@@ -590,7 +583,7 @@ function renderPanels() {
     </div>
     <ul class="metric-list">
       ${byCategory.map(({ entry, count }) => `<li><span>${entry}</span><strong>${count}</strong></li>`).join('')}
-      <li><span>Strongest ${SPEC.metric.label.toLowerCase()}</span><strong>${strongest}</strong></li>
+      <li><span>Strongest ${SPEC.metric.label.toLowerCase()}</span><strong>${escapeHtml(strongest)}</strong></li>
     </ul>
   `;
 }
