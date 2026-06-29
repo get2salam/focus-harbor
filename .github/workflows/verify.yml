@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,5 +23,14 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run test and static verification suite
-        run: npm run verify
+      - name: Run unit tests
+        run: npm test
+
+      - name: Syntax-check all JS sources
+        run: npm run check
+
+      - name: Verify static app contract
+        run: node scripts/verify-static.mjs
+
+      - name: Run example score preview
+        run: node scripts/preview-score.mjs

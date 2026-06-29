@@ -2,11 +2,14 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  bumpDate,
   clamp,
   daysFromToday,
   escapeHtml,
+  isCompleted,
   normalize,
   priority,
+  stateWeight,
   todayISO,
 } from '../js/scoring.js';
 
@@ -125,6 +128,60 @@ describe('priority', () => {
     const broken = baseItem({ date: 'whenever' });
     const score = priority(broken, SPEC);
     assert.ok(Number.isFinite(score), `expected finite priority, got ${score}`);
+  });
+});
+
+describe('bumpDate', () => {
+  it('advances a date by the given number of days', () => {
+    assert.equal(bumpDate('2026-01-01', 3), '2026-01-04');
+    assert.equal(bumpDate('2026-01-01', 0), '2026-01-01');
+  });
+
+  it('steps backward with negative offsets and handles month boundaries', () => {
+    assert.equal(bumpDate('2026-03-01', -1), '2026-02-28');
+    assert.equal(bumpDate('2026-01-01', -1), '2025-12-31');
+  });
+
+  it('falls back to a valid date when the seed is missing or malformed', () => {
+    // Regression: null/malformed seeds must not throw or produce 'Invalid Date'.
+    const re = /^\d{4}-\d{2}-\d{2}$/;
+    assert.match(bumpDate(null, 2), re);
+    assert.match(bumpDate('not-a-date', 1), re);
+    assert.match(bumpDate('', 0), re);
+    // The offset relationship between fallback results must be self-consistent.
+    const msPerDay = 86400000;
+    const base = bumpDate(null, 0);
+    const plus2 = bumpDate(null, 2);
+    assert.equal(new Date(`${plus2}T00:00:00`) - new Date(`${base}T00:00:00`), 2 * msPerDay);
+  });
+});
+
+describe('isCompleted', () => {
+  it('returns true only for states listed in completedStates', () => {
+    assert.equal(isCompleted('Logged', SPEC), true);
+    assert.equal(isCompleted('Anchored', SPEC), false);
+    assert.equal(isCompleted('Planned', SPEC), false);
+    assert.equal(isCompleted('Drifting', SPEC), false);
+  });
+
+  it('does not throw and returns false when completedStates is absent', () => {
+    assert.equal(isCompleted('Logged', {}), false);
+    assert.equal(isCompleted('Logged', { completedStates: [] }), false);
+  });
+});
+
+describe('stateWeight', () => {
+  it('returns the configured weight for each known state', () => {
+    assert.equal(stateWeight('Planned', SPEC), 2);
+    assert.equal(stateWeight('Anchored', SPEC), 10);
+    assert.equal(stateWeight('Drifting', SPEC), 7);
+    assert.equal(stateWeight('Logged', SPEC), 3);
+  });
+
+  it('returns 0 for unknown states or when stateWeights map is absent', () => {
+    assert.equal(stateWeight('Unknown', SPEC), 0);
+    assert.equal(stateWeight('Anchored', {}), 0);
+    assert.equal(stateWeight('Anchored', { stateWeights: null }), 0);
   });
 });
 
